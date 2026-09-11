@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kirby: Star Catch Café</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 20% 20%, #fff 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 30%, #fff 0 2px, transparent 3px),
+        linear-gradient(135deg,#f9d8ec,#dcecff,#fff3cf);
+    font-family:'Fredoka',sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+}
+
+.game{
+    width:min(1000px,94vw);
+    height:min(720px,92vh);
+    position:relative;
+    overflow:hidden;
+    border:6px solid #fff;
+    border-radius:32px;
+    box-shadow:0 20px 60px #8c709655;
+    background:#fff7fb;
+}
+
+/* HEADER */
+
+.header{
+    height:90px;
+    background:linear-gradient(90deg,#ffb9d7,#ffd8eb,#cde8ff);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 25px;
+    border-bottom:4px solid #fff;
+    position:relative;
+    z-index:10;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:700;
+    color:#744c69;
+}
+
+.logo span{
+    font-size:14px;
+    display:block;
+    opacity:.7;
+}
+
+.stats{
+    display:flex;
+    gap:12px;
+}
+
+.stat{
+    background:#ffffffaa;
+    padding:10px 16px;
+    border-radius:18px;
+    color:#744c69;
+    font-weight:600;
+    min-width:90px;
+    text-align:center;
+}
+
+.stat small{
+    display:block;
+    font-size:10px;
+    opacity:.6;
+}
+
+/* GAME AREA */
+
+#arena{
+    position:absolute;
+    top:90px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:hidden;
+    background:
+        linear-gradient(#d9f1ff 0%,#f6f4ff 55%,#ffe7ef 100%);
+}
+
+/* clouds */
+
+.cloud{
+    position:absolute;
+    width:120px;
+    height:35px;
+    background:#ffffffbb;
+    border-radius:50px;
+    animation:cloudMove linear infinite;
+}
+
+.cloud:before,
+.cloud:after{
+    content:"";
+    position:absolute;
+    background:#ffffffbb;
+    border-radius:50%;
+}
+
+.cloud:before{
+    width:55px;
+    height:55px;
+    left:20px;
+    top:-25px;
+}
+
+.cloud:after{
+    width:45px;
+    height:45px;
+    right:18px;
+    top:-18px;
+}
+
+.c1{top:70px;left:-150px;animation-duration:28s}
+.c2{top:180px;left:-200px;animation-duration:36s;animation-delay:8s}
+.c3{top:40px;left:-250px;animation-duration:42s;animation-delay:15s}
+
+@keyframes cloudMove{
+    from{transform:translateX(0)}
+    to{transform:translateX(1200px)}
+}
+
+/* café counter */
+
+.counter{
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:110px;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #f6b9c9 0 45px,
+            #ffd6e0 45px 90px
+        );
+    border-top:6px solid #fff;
+}
+
+.counter:before{
+    content:"";
+    position:absolute;
+    top:-20px;
+    left:0;
+    width:100%;
+    height:25px;
+    background:#fff4f8;
+    border-radius:15px 15px 0 0;
+}
+
+/* KIRBY */
+
+#kirby{
+    position:absolute;
+    width:75px;
+    height:65px;
+    left:50%;
+    bottom:115px;
+    transform:translateX(-50%);
+    z-index:5;
+    transition:transform .08s;
+}
+
+.body{
+    position:absolute;
+    width:58px;
+    height:52px;
+    left:8px;
+    top:5px;
+    border-radius:50%;
+    background:#ff9fc5;
+    box-shadow:
+        inset -7px -5px #ed7fac,
+        0 5px 0 #d96f9e;
+}
+
+.eye{
+    position:absolute;
+    width:7px;
+    height:17px;
+    background:#49304f;
+    border-radius:50%;
+    top:18px;
+    z-index:3;
+}
+
+.eye.left{left:24px}
+.eye.right{left:43px}
+
+.eye:after{
+    content:"";
+    position:absolute;
+    width:3px;
+    height:6px;
+    background:#fff;
+    border-radius:50%;
+    left:2px;
+    top:2px;
+}
+
+.mouth{
+    position:absolute;
+    width:8px;
+    height:5px;
+    border-bottom:3px solid #8d456d;
+    border-radius:50%;
+    left:33px;
+    top:38px;
+    z-index:4;
+}
+
+.cheek{
+    position:absolute;
+    width:13px;
+    height:6px;
+    background:#ed729d;
+    border-radius:50%;
+    top:37px;
+}
+
+.cheek.l{left:10px}
+.cheek.r{right:10px}
+
+.foot{
+    position:absolute;
+    width:35px;
+    height:20px;
+    background:#dc5b82;
+    border-radius:50%;
+    bottom:0;
+}
+
+.foot.l{left:-4px}
+.foot.r{right:-4px}
+
+/* items */
+
+.item{
+    position:absolute;
+    font-size:35px;
+    user-select:none;
+    z-index:4;
+    filter:drop-shadow(0 4px 3px #7774);
+}
+
+.item.good{
+    animation:spin 1.2s linear infinite;
+}
+
+@keyframes spin{
+    50%{transform:rotate(12deg) scale(1.08)}
+}
+
+.item.bad{
+    font-size:32px;
+}
+
+@keyframes pop{
+    0%{transform:scale(.5);opacity:0}
+    60%{transform:scale(1.3);opacity:1}
+    100%{transform:scale(1);opacity:0}
+}
+
+.pop{
+    position:absolute;
+    font-weight:700;
+    color:#855476;
+    font-size:25px;
+    pointer-events:none;
+    animation:pop .7s forwards;
+    z-index:20;
+}
+
+/* buttons */
+
+.controls{
+    position:absolute;
+    right:18px;
+    bottom:18px;
+    display:flex;
+    gap:8px;
+    z-index:30;
+}
+
+button{
+    border:0;
+    padding:10px 16px;
+    border-radius:16px;
+    background:#ffffffdd;
+    color:#714d69;
+    font-family:inherit;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 4px 12px #7772;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+/* START SCREEN */
+
+.overlay{
+    position:absolute;
+    inset:0;
+    background:#fff7fbdd;
+    backdrop-filter:blur(8px);
+    z-index:100;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.card{
+    width:min(520px,85%);
+    background:#fff;
+    border:5px solid #fff;
+    border-radius:30px;
+    padding:35px;
+    text-align:center;
+    box-shadow:0 15px 50px #8d668844;
+}
+
+.card .big{
+    font-size:70px;
+    margin-bottom:10px;
+}
+
+.card h1{
+    color:#7b4d70;
+    font-size:35px;
+}
+
+.card p{
+    color:#927389;
+    margin:12px 0 25px;
+    line-height:1.5;
+}
+
+.start{
+    background:linear-gradient(135deg,#ff9fc7,#c5ddff);
+    color:white;
+    font-size:18px;
+    padding:13px 30px;
+    border-radius:20px;
+}
+
+.hidden{
+    display:none;
+}
+
+/* combo */
+
+.combo{
+    position:absolute;
+    left:22px;
+    top:20px;
+    background:#ffffffbb;
+    border-radius:18px;
+    padding:10px 15px;
+    color:#81516e;
+    font-weight:700;
+    z-index:20;
+}
+
+/* mobile */
+
+@media(max-width:600px){
+    .header{
+        height:75px;
+        padding:0 12px;
+    }
+
+    .logo{
+        font-size:18px;
+    }
+
+    .stat{
+        min-width:65px;
+        padding:7px;
+        font-size:13px;
+    }
+
+    .stat small{
+        font-size:8px;
+    }
+
+    #arena{
+        top:75px;
+    }
+
+    .card h1{
+        font-size:27px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <div class="header">
+        <div class="logo">
+            ⭐ STAR CATCH CAFÉ
+            <span>Kirby's dreamy little café</span>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <small>SCORE</small>
+                <span id="score">0</span>
+            </div>
+
+            <div class="stat">
+                <small>COMBO</small>
+                <span id="comboText">x1</span>
+            </div>
+
+            <div class="stat">
+                <small>TIME</small>
+                <span id="time">60</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="arena">
+
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+
+        <div class="combo">
+            ✨ Combo <span id="combo">0</span>
+        </div>
+
+        <div id="kirby">
+            <div class="body"></div>
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+            <div class="cheek l"></div>
+            <div class="cheek r"></div>
+            <div class="foot l"></div>
+            <div class="foot r"></div>
+        </div>
+
+        <div class="counter"></div>
+
+        <div class="controls">
+            <button onclick="togglePause()">⏸ Pause</button>
+            <button onclick="restart()">↻</button>
+        </div>
+
+        <!-- START -->
+        <div class="overlay" id="startScreen">
+            <div class="card">
+                <div class="big">🍰⭐</div>
+                <h1>Star Catch Café</h1>
+                <p>
+                    Bantu Kirby mengumpulkan bahan-bahan
+                    untuk membuat café impiannya! ⭐
+                    <br><br>
+                    Gerakkan Kirby dengan
+                    <b>← →</b> atau <b>A D</b>.
+                    <br>
+                    Tangkap makanan & bintang,
+                    hindari bom 💣!
+                </p>
+
+                <button class="start" onclick="startGame()">
+                    ✨ Mulai Café
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME OVER -->
+        <div class="overlay hidden" id="endScreen">
+            <div class="card">
+                <div class="big" id="endEmoji">🌟</div>
+                <h1 id="endTitle">Café Selesai!</h1>
+
+                <p>
+                    Kamu mendapatkan
+                    <b><span id="finalScore">0</span></b> poin!
+                    <br>
+                    Combo terbaik:
+                    <b>x<span id="bestCombo">0</span></b>
+                </p>
+
+                <button class="start" onclick="restart()">
+                    💗 Main Lagi
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+const arena = document.getElementById("arena");
+const kirby = document.getElementById("kirby");
+
+let running=false;
+let paused=false;
+
+let score=0;
+let combo=0;
+let bestCombo=0;
+let time=60;
+
+let x=0;
+let items=[];
+let keys={};
+
+let spawnTimer;
+let gameTimer;
+let fallTimer;
+
+document.addEventListener("keydown",e=>{
+    keys[e.key.toLowerCase()]=true;
+
+    if(e.key.toLowerCase()==="p"){
+        togglePause();
+    }
+});
+
+document.addEventListener("keyup",e=>{
+    keys[e.key.toLowerCase()]=false;
+});
+
+
+function startGame(){
+
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("endScreen").classList.add("hidden");
+
+    running=true;
+    paused=false;
+
+    score=0;
+    combo=0;
+    bestCombo=0;
+    time=60;
+
+    x=arena.clientWidth/2-38;
+
+    kirby.style.left=x+"px";
+
+    clearItems();
+
+    updateUI();
+
+    spawnTimer=setInterval(spawnItem,650);
+
+    gameTimer=setInterval(()=>{
+        if(!running || paused) return;
+
+        time--;
+
+        if(time<=0){
+            endGame();
+        }
+
+        updateUI();
+
+    },1000);
+
+    fallTimer=setInterval(updateGame,30);
+}
+
+
+function updateGame(){
+
+    if(!running || paused) return;
+
+    const speed=7;
+
+    if(keys["arrowleft"] || keys["a"]){
+        x-=speed;
+    }
+
+    if(keys["arrowright"] || keys["d"]){
+        x+=speed;
+    }
+
+    x=Math.max(5,Math.min(arena.clientWidth-80,x));
+
+    kirby.style.left=x+"px";
+
+    checkCollisions();
+}
+
+
+function spawnItem(){
+
+    if(!running || paused) return;
+
+    const el=document.createElement("div");
+
+    let type=Math.random();
+
+    if(type<0.35){
+        el.innerHTML="⭐";
+        el.dataset.points="20";
+        el.className="item good";
+    }
+    else if(type<0.55){
+        el.innerHTML="🍓";
+        el.dataset.points="15";
+        el.className="item good";
+    }
+    else if(type<0.72){
+        el.innerHTML="🍰";
+        el.dataset.points="25";
+        el.className="item good";
+    }
+    else if(type<0.88){
+        el.innerHTML="🍬";
+        el.dataset.points="10";
+        el.className="item good";
+    }
+    else{
+        el.innerHTML="💣";
+        el.dataset.points="-1";
+        el.className="item bad";
+    }
+
+    const size=35;
+
+    el.style.left=(Math.random()*(arena.clientWidth-size))+"px";
+    el.style.top="-45px";
+
+    arena.appendChild(el);
+
+    items.push({
+        el:el,
+        y:-45,
+        speed:3+Math.random()*3
+    });
+}
+
+
+function checkCollisions(){
+
+    const k=kirby.getBoundingClientRect();
+
+    items.forEach((item,index)=>{
+
+        const r=item.el.getBoundingClientRect();
+
+        if(
+            r.left < k.right-10 &&
+            r.right > k.left+10 &&
+            r.top < k.bottom &&
+            r.bottom > k.top+10
+        ){
+
+            const points=parseInt(item.el.dataset.points);
+
+            if(points>0){
+
+                combo++;
+
+                if(combo>bestCombo)
+                    bestCombo=combo;
+
+                let multiplier=1;
+
+                if(combo>=15) multiplier=4;
+                else if(combo>=10) multiplier=3;
+                else if(combo>=5) multiplier=2;
+
+                score+=points*multiplier;
+
+                showPop(
+                    r.left-arena.getBoundingClientRect().left,
+                    r.top-arena.getBoundingClientRect().top,
+                    "+"+(points*multiplier)
+                );
+
+                soundGood();
+
+            }else{
+
+                combo=0;
+
+                showPop(
+                    r.left-arena.getBoundingClientRect().left,
+                    r.top-arena.getBoundingClientRect().top,
+                    "💥 Oops!"
+                );
+
+                soundBad();
+            }
+
+            item.el.remove();
+            items.splice(index,1);
+
+            updateUI();
+        }
+    });
+}
+
+
+function updateGameItems(){
+
+    items.forEach(item=>{
+        item.y+=item.speed;
+        item.el.style.top=item.y+"px";
+    });
+
+    items=items.filter(item=>{
+        if(item.y>arena.clientHeight){
+
+            item.el.remove();
+
+            if(item.el.dataset.points>0){
+                combo=0;
+                updateUI();
+            }
+
+            return false;
+        }
+
+        return true;
+    });
+}
+
+
+function updateGame(){
+
+    if(!running || paused) return;
+
+    const speed=7;
+
+    if(keys["arrowleft"] || keys["a"])
+        x-=speed;
+
+    if(keys["arrowright"] || keys["d"])
+        x+=speed;
+
+    x=Math.max(5,Math.min(arena.clientWidth-80,x));
+
+    kirby.style.left=x+"px";
+
+    updateGameItems();
+    checkCollisions();
+}
+
+
+function showPop(x,y,text){
+
+    const p=document.createElement("div");
+
+    p.className="pop";
+    p.textContent=text;
+
+    p.style.left=x+"px";
+    p.style.top=y+"px";
+
+    arena.appendChild(p);
+
+    setTimeout(()=>p.remove(),700);
+}
+
+
+function updateUI(){
+
+    document.getElementById("score").textContent=score;
+
+    document.getElementById("combo").textContent=combo;
+
+    let mult=1;
+
+    if(combo>=15) mult=4;
+    else if(combo>=10) mult=3;
+    else if(combo>=5) mult=2;
+
+    document.getElementById("comboText").textContent="x"+mult;
+
+    document.getElementById("time").textContent=time;
+}
+
+
+function clearItems(){
+
+    items.forEach(i=>i.el.remove());
+
+    items=[];
+}
+
+
+function togglePause(){
+
+    if(!running) return;
+
+    paused=!paused;
+
+    if(paused){
+        document.getElementById("endTitle").textContent="⏸ Paused";
+    }
+}
+
+
+function endGame(){
+
+    running=false;
+
+    clearInterval(spawnTimer);
+    clearInterval(gameTimer);
+    clearInterval(fallTimer);
+
+    document.getElementById("finalScore").textContent=score;
+    document.getElementById("bestCombo").textContent=bestCombo;
+
+    document.getElementById("endEmoji").textContent=
+        score>=500 ? "👑" :
+        score>=250 ? "🌟" :
+        "🍓";
+
+    document.getElementById("endTitle").textContent=
+        score>=500 ? "Café Master!" :
+        score>=250 ? "Amazing Café!" :
+        "Café Selesai!";
+
+    document.getElementById("endScreen").classList.remove("hidden");
+}
+
+
+function restart(){
+
+    clearInterval(spawnTimer);
+    clearInterval(gameTimer);
+    clearInterval(fallTimer);
+
+    document.getElementById("endScreen").classList.add("hidden");
+
+    startGame();
+}
+
+
+/* SOUND */
+
+let audio;
+
+function getAudio(){
+
+    if(!audio)
+        audio=new (window.AudioContext||window.webkitAudioContext)();
+
+    return audio;
+}
+
+function beep(freq,duration){
+
+    try{
+
+        const a=getAudio();
+
+        const osc=a.createOscillator();
+        const gain=a.createGain();
+
+        osc.frequency.value=freq;
+        osc.type="sine";
+
+        gain.gain.setValueAtTime(.05,a.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+            .001,
+            a.currentTime+duration
+        );
+
+        osc.connect(gain);
+        gain.connect(a.destination);
+
+        osc.start();
+        osc.stop(a.currentTime+duration);
+
+    }catch(e){}
+}
+
+function soundGood(){
+    beep(650,.08);
+    setTimeout(()=>beep(850,.08),50);
+}
+
+function soundBad(){
+    beep(180,.15);
+}
+
+
+/* little idle animation */
+
+setInterval(()=>{
+
+    if(!running || paused) return;
+
+    kirby.style.transform=
+        "translateX(-50%) translateY(-4px)";
+
+    setTimeout(()=>{
+        kirby.style.transform=
+            "translateX(-50%) translateY(0)";
+    },120);
+
+},700);
+
+</script>
+
+</body>
+</html>
